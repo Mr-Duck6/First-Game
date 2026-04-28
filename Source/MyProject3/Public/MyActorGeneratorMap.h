@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/DataTable.h"
 #include "MyActorGeneratorMap.generated.h"
 
 UCLASS()
@@ -36,10 +37,13 @@ public:
 	void SpawnLines();
 	void SpawnProps();
 
-	FVector LinePoint;
-	FVector GridPoint;
+	FVector LinePoint;//Center of line
+	FVector GridPoint;//Points in grid
 
 	int32 GridSizeY=10;
 	int32 GridSizeX = 10;
+
+	UPROPERTY(EditAnywhere, Category = "Data")
+		UDataTable* MyTable;
 
 };

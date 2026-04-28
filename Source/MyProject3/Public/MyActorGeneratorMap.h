@@ -31,7 +31,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void DrawLinesGrid(int32 j);
-	void DrawSuareGrid(int32 j);
+	virtual void DrawSuareGrid(int32 j);
 
 	void SpawnLines();
 	void SpawnProps();

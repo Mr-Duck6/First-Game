@@ -2,6 +2,7 @@
 
 #include "MyActorGeneratorMap.h"
 #include "DrawDebugHelpers.h"
+#include "MyBaseTypes.h"
 #include "Logging/LogMacros.h"
 
 
@@ -34,7 +35,7 @@ void AMyActorGeneratorMap::Tick(float DeltaTime)
 
 }
 
-void AMyActorGeneratorMap::DrawLinesGrid(int32 j)
+void AMyActorGeneratorMap::DrawLinesGrid(int32 j)//Drawing line and createing point of center lines
 {
 	UE_LOG(LogTemp, Display, TEXT("Draw lines and points for road"));
 	FVector Start(0, -500, 0);
@@ -55,7 +56,7 @@ void AMyActorGeneratorMap::DrawLinesGrid(int32 j)
 }
 
 
-void AMyActorGeneratorMap::DrawSuareGrid(int32 j)
+void AMyActorGeneratorMap::DrawSuareGrid(int32 j)//Displays a grid of item locations and player movement.
 {
 	UE_LOG(LogTemp, Display, TEXT("Draw suare and points for road"));
 	GridPoint = FVector(50, -450, 0);
@@ -71,13 +72,18 @@ void AMyActorGeneratorMap::DrawSuareGrid(int32 j)
 	}
 }
 
-void AMyActorGeneratorMap::SpawnLines()
+void AMyActorGeneratorMap::SpawnLines()//Spawn mesh line
 {
+	
+
+	
 
 }
 
-void AMyActorGeneratorMap::SpawnProps()
+void AMyActorGeneratorMap::SpawnProps()//Spawn mesh other objects
 {
+
+
 
 }
 

@@ -3,6 +3,8 @@
 #include "MyActorGeneratorMap.h"
 #include "DrawDebugHelpers.h"
 #include "MyBaseTypes.h"
+#include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
 #include "Logging/LogMacros.h"
 
 
@@ -74,9 +76,26 @@ void AMyActorGeneratorMap::DrawSuareGrid(int32 j)//Displays a grid of item locat
 
 void AMyActorGeneratorMap::SpawnLines()//Spawn mesh line
 {
-	
 
-	
+
+	if (!Data) { return; }
+
+	FRoadType* Road = Data->FindRow<FRoadType>("SafeRoad",TEXT(""));
+	if (Road) 
+	{
+		FStreamableManager& Maneger = UAssetManager::GetStreamableManager();
+		
+		
+		TSharedPtr<FStreamableHandle> NewHandle = Maneger.RequestAsyncLoad(Road->Mesh.ToSoftObjectPath(),
+			FStreamableDelegate::CreateUObject(this, &AMyActorGeneratorMap::OnRoadMeshLoaded, FName("SafeRoad")));
+
+		
+		CreatedLines.Add(NewHandle);
+
+
+	}
+
+
 
 }
 
@@ -85,5 +104,32 @@ void AMyActorGeneratorMap::SpawnProps()//Spawn mesh other objects
 
 
 
+}
+
+
+void AMyActorGeneratorMap::OnRoadMeshLoaded(FName RowName)
+{
+	FRoadType* Road = Data->FindRow<FRoadType>(RowName, TEXT(""));
+
+	if (Road && Road->Mesh.IsValid())
+	{
+		UStaticMesh* LoadedMesh = Road->Mesh.Get();
+
+		FVector SpawnLocation = LinePoint;
+		FRotator SpawnRotation(0.f, 0.f, 0.f);
+
+		AActor* NewActor = GetWorld()->SpawnActor<AActor>(AActor::StaticClass(), SpawnLocation, SpawnRotation);
+
+
+	}
+
+	for (int32 i = 0; i < CreatedLines.Num(); ++i)
+	{
+		if (CreatedLines[i].IsValid() && CreatedLines[i]->HasLoadCompleted())
+		{
+			CreatedLines.RemoveAt(i);
+			break;
+		}
+	}
 }
 

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Engine/DataTable.h"
+#include "Engine/StreamableManager.h"
 #include "MyActorGeneratorMap.generated.h"
 
 UCLASS()
@@ -43,7 +44,9 @@ public:
 	int32 GridSizeY=10;
 	int32 GridSizeX = 10;
 
-	UPROPERTY(EditAnywhere, Category = "Data")
-		UDataTable* MyTable;
+	TArray<TSharedPtr<FStreamableHandle>> CreatedLines;//Array with created roads
 
+	UDataTable* Data; 
+
+	void OnRoadMeshLoaded(FName RowName);
 };

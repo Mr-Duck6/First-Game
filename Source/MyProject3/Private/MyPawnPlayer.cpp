@@ -34,7 +34,7 @@ void AMyPawnPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
-
+    SpendEnergy();
 	
 }
 
@@ -85,7 +85,5 @@ void AMyPawnPlayer::SpendEnergy()
     {
         CurrentEnergy -= SpendTime *Time;
     }
-
-
 }
 

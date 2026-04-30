@@ -15,3 +15,14 @@ struct FRoadType : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
         int32 ChanceToSpawn;
 };
+
+
+USTRUCT(BluePrintType)
+struct FPropsObjec : public FTableRowBase
+{
+    GENERATED_BODY()
+
+        UPROPERTY(EditAnywhere, BlueprintReadWrite)
+        TSoftObjectPtr<UStaticMesh> Meshprops;
+
+};

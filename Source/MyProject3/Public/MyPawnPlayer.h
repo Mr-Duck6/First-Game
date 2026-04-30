@@ -41,15 +41,25 @@ public:
 	void MoveRight();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Energy")
-	float CurrentEnergy = 0;
+	float CurrentEnergy = 100;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Energy")
 	float MaxEnergy = 100;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Energy")
 	float MinEnergy = 0;
 
 	void SpendEnergy();
 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Energy")
 	bool PlayerCharging = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Energy")
 	bool PlayerEnergySpend = true;
 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Energy")
 	float SpendTime = 5.f;
 
 };

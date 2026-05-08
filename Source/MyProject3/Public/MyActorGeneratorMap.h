@@ -1,12 +1,11 @@
 
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Engine/DataTable.h"
-#include "Engine/StreamableManager.h"
 #include "MyActorGeneratorMap.generated.h"
+
+class AMyActorRoadLine;
 
 UCLASS()
 class MYPROJECT3_API AMyActorGeneratorMap : public AActor
@@ -32,21 +31,22 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	void DrawLinesGrid(int32 j);
-	virtual void DrawSuareGrid(int32 j);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TArray<TSubclassOf<AMyActorRoadLine>> RoadLines;
 
-	void SpawnLines();
-	void SpawnProps();
+	UPROPERTY()
+		TArray<AMyActorRoadLine*> SpawnedLines;
 
-	FVector LinePoint;//Center of line
-	FVector GridPoint;//Points in grid
+	UPROPERTY(EditAnywhere)
+		int32 StartLinesCount = 10;
 
-	int32 GridSizeY=10;
-	int32 GridSizeX = 10;
+	UPROPERTY(EditAnywhere)
+		float DistanceBetweenLines = 100.f;
 
-	TArray<TSharedPtr<FStreamableHandle>> CreatedLines;//Array with created roads
+	float CurrentY = 0.f;
 
-	UDataTable* Data; 
+	void SpawnLine();
 
-	void OnRoadMeshLoaded(FName RowName);
+	AMyActorRoadLine* GetLine(int32 Index);
 };
+

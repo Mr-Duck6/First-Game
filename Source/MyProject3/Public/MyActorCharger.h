@@ -29,12 +29,25 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+	class AMyPawnPlayer* Player;
 
 	virtual void Tick(float DeltaTime) override;
 
-	void Charge();
+	void Charge(bool InPlatform);
 
-	float ChargeTime = 4.f;
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
 
+	UFUNCTION()
+	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex);
 
+	float ChargeSpeed = 5;
 };

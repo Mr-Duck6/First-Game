@@ -23,6 +23,7 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UPROPERTY(VisibleAnywhere,BluePrintReadWrite)
 	float CurrentTime = 0.f;
 
 	FTimerHandle TimerHandle;

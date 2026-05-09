@@ -13,5 +13,8 @@ public:
     AMyGameState(); 
 
 
+
+    void RestartLevel();
+    
     
 };

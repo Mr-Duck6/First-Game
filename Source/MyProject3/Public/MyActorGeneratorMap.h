@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -6,6 +5,7 @@
 #include "MyActorGeneratorMap.generated.h"
 
 class AMyActorRoadLine;
+class AMyPawnPlayer;
 
 UCLASS()
 class MYPROJECT3_API AMyActorGeneratorMap : public AActor
@@ -16,37 +16,52 @@ public:
 
 	AMyActorGeneratorMap();
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-		class USceneComponent* Scene;
+	UPROPERTY(VisibleAnywhere)
+		USceneComponent* Scene;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-		class UStaticMeshComponent* Mesh;
+	UPROPERTY(VisibleAnywhere)
+		UStaticMeshComponent* Mesh;
 
-
-protected:
-
-	virtual void BeginPlay() override;
-
-public:
-
-	virtual void Tick(float DeltaTime) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, Category = "Road")
 		TArray<TSubclassOf<AMyActorRoadLine>> RoadLines;
 
 	UPROPERTY()
 		TArray<AMyActorRoadLine*> SpawnedLines;
 
+	UPROPERTY(EditAnywhere, Category = "Lamp")
+		TSubclassOf<AActor> LampBlueprintClass;
+
+	UPROPERTY()
+		AMyPawnPlayer* Player;
+
 	UPROPERTY(EditAnywhere)
-		int32 StartLinesCount = 10;
+		int32 MaxLines = 20;
+
+	UPROPERTY(EditAnywhere)
+		int32 StartLinesCount = 20;
 
 	UPROPERTY(EditAnywhere)
 		float DistanceBetweenLines = 100.f;
 
+	UPROPERTY(EditAnywhere)
+		float LampOffsetX = 493.f;
+
+	UPROPERTY(EditAnywhere)
+		float LampZ = 320.f;
+
 	float CurrentY = 0.f;
+
+	float NextSpawnTrigger = 100.f;
+
+protected:
+
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
 
 	void SpawnLine();
 
-	AMyActorRoadLine* GetLine(int32 Index);
-};
+	void CheckPlayerProgress();
 
+	void RemoveOldLine();
+};

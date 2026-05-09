@@ -16,12 +16,18 @@ class MYPROJECT3_API AMyPawnPlayer : public APawn
 public:
 
 	AMyPawnPlayer();
+	
 
+	//Component
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	class UStaticMeshComponent* PlayerMeshComponent;
-	class USceneComponent* SceneComponent;
+
+	UPROPERTY(VisibleAnywhere)
+		USceneComponent* SceneComponent;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	class USpringArmComponent* SpringArmComponent;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	class UCameraComponent* CameraComponent;
 
@@ -37,24 +43,21 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map")
-	class AMyActorGeneratorMap* MapGenerator;
 	//Move
 	void MoveForward();
 	void MoveBackward();
 	void MoveLeft();
 	void MoveRight();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map")
+		class AMyActorGeneratorMap* MapGenerator;
 
 	UPROPERTY()
 	AMyActorRoadLine* CurrentLine;
 
 	int32 CellX;
-	int32 CellY;
 
 	FVector TargetLocation;
-
-	int32 CurrentLineIndex;
 
 	bool IsMoveing = false;
 
@@ -73,9 +76,21 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Energy")
 	float CurrentEnergy;
 
-	float SpendEnergy=2;
+	float SpendEnergy=0.5;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Energy")
 	float MaxEnergy = 100;
 
+	//Time and player status
+	float CurrentTime;
+
+	FTimerHandle RecordTimer;
+
+	void UpdateTime();
+
+	bool IsDead = false;
+
+	UPROPERTY()
+		TArray<AMyActorRoadLine*> SpawnedLines;
 
 };

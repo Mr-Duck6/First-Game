@@ -24,20 +24,15 @@ void AMyActorRoadLine::Tick(float DeltaTime)
 
 void AMyActorRoadLine::GenerateCells()
 {
-
     LinePoints.Empty();
 
     float StartX = -400.f;
 
     for (int i = 0; i < LineLength; i++)
     {
-    FVector CellLocation=GetActorLocation() +FVector(StartX + i * CellSize, 0, 0);
-    LinePoints.Add(CellLocation);
+        FVector CellLocation =GetActorLocation() + FVector(StartX + i * CellSize, 0, 0);
 
-    if (GetWorld())
-    {
-        DrawDebugPoint(GetWorld(), CellLocation, 20.f, FColor::Red, true);
-    }
+        LinePoints.Add(CellLocation);
     }
 }
 

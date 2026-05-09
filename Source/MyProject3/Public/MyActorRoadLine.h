@@ -25,15 +25,16 @@ public:
     UStaticMeshComponent* RoadMesh;
 
     UPROPERTY(EditAnywhere)
-    int32 LineLength = 9;
+    int32 LineLength = 19;
 
     UPROPERTY(EditAnywhere)
     float CellSize = 100.f;
-
 
     TArray<FVector> LinePoints;
 
     void GenerateCells();
 
     FVector GetCellLocation(int32 Index);
+
+
 };

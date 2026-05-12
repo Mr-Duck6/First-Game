@@ -3,21 +3,33 @@
 #include "Kismet/GameplayStatics.h"
 #include "MyPawnPlayer.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SpotLightComponent.h"
 #include "Components/BoxComponent.h"
 
 AMyActorCharger::AMyActorCharger()
 {
 
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
+
+	//Components
 	Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
 	RootComponent = Scene;
 
 	ChargerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ChargerMesh"));
+	LampMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LampMesh"));
 	BoxTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxTrigger"));
+	Light = CreateDefaultSubobject<USpotLightComponent>(TEXT("Light"));
 
 	ChargerMesh->SetupAttachment(Scene);
 	BoxTrigger->SetupAttachment(ChargerMesh);
+	LampMesh->SetupAttachment(Scene);
+	Light->SetupAttachment(LampMesh);
+	
+	//Triger
+	BoxTrigger->OnComponentBeginOverlap.AddDynamic(this, &AMyActorCharger::OnOverlapBegin);
+	BoxTrigger->OnComponentEndOverlap.AddDynamic(this, &AMyActorCharger::OnOverlapEnd);
+
 
 }
 
@@ -34,15 +46,6 @@ void AMyActorCharger::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	Charge(Player->IsCharging);
-}
-
-void AMyActorCharger::Charge(bool IsCharging)
-{
-	if (IsCharging && Player)
-	{
-		Player->CurrentEnergy = +ChargeSpeed;
-	}
 }
 
 
@@ -53,7 +56,12 @@ void AMyActorCharger::OnOverlapBegin(UPrimitiveComponent* OverlappedComp,
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	Player->IsCharging = true;
+	AMyPawnPlayer* Pawn = Cast<AMyPawnPlayer>(OtherActor);
+
+	if (Pawn)
+	{
+		Pawn->IsCharging = true;
+	}
 }
 
 void  AMyActorCharger::OnOverlapEnd(UPrimitiveComponent* OverlappedComp,
@@ -61,6 +69,11 @@ void  AMyActorCharger::OnOverlapEnd(UPrimitiveComponent* OverlappedComp,
 	UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex)
 {
-	Player->IsCharging = false;
+	AMyPawnPlayer* Pawn = Cast<AMyPawnPlayer>(OtherActor);
+	
+	if (Pawn)
+	{
+		Pawn->IsCharging = false;
+	}
 }
 

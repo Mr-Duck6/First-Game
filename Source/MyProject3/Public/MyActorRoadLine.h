@@ -32,6 +32,9 @@ public:
 
     TArray<FVector> LinePoints;
 
+    UPROPERTY()
+        TArray<AActor*> SpawnedLamps;
+
     void GenerateCells();
 
     FVector GetCellLocation(int32 Index);

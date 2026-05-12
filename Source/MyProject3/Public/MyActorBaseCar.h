@@ -40,7 +40,7 @@ public:
 			UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 			bool bFromSweep, const FHitResult& SweepResult);
 
-		float MaxX = 600.f;
+		float MaxY = 600.f;
 
 	UPROPERTY()
 		FVector MoveDirection = FVector::RightVector;
@@ -48,7 +48,7 @@ public:
 	FVector StartLocation;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float Speed = 50.f;
+		float Speed = 100.f;
 
 };
 

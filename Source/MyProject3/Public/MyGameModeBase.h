@@ -1,3 +1,5 @@
+
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -9,7 +11,6 @@ class MYPROJECT3_API AMyGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 
-public:
 
-	AMyGameModeBase();
+
 };

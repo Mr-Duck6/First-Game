@@ -6,6 +6,9 @@
 
 class AMyActorRoadLine;
 class AMyPawnPlayer;
+class AMyActorBaseStaticObject;
+class AMyActorCharger;
+class AMyActorBaseCar;
 
 UCLASS()
 class MYPROJECT3_API AMyActorGeneratorMap : public AActor
@@ -15,46 +18,50 @@ class MYPROJECT3_API AMyActorGeneratorMap : public AActor
 public:
 
 	AMyActorGeneratorMap();
-
+	//Components
 	UPROPERTY(VisibleAnywhere)
 		USceneComponent* Scene;
 
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* Mesh;
 
-	UPROPERTY(EditAnywhere, Category = "Road")
-		TArray<TSubclassOf<AMyActorRoadLine>> RoadLines;
-
-	UPROPERTY()
-		TArray<AMyActorRoadLine*> SpawnedLines;
-
+	//Reference
 	UPROPERTY(EditAnywhere, Category = "Lamp")
 		TSubclassOf<AActor> LampBlueprintClass;
+
+	UPROPERTY(EditAnywhere, Category = "Barrel")
+		TSubclassOf<AMyActorBaseStaticObject> BlueprintToSpawnBarrel;
+	UPROPERTY(EditAnywhere, Category = "Charger")
+		TSubclassOf<AMyActorCharger> BlueprintToSpawnCharger;
+	UPROPERTY(EditAnywhere, Category = "Car")
+		TSubclassOf<AMyActorBaseCar> BlueprintToSpawnCar;
 
 	UPROPERTY()
 		AMyPawnPlayer* Player;
 
+	//Road
 	UPROPERTY(EditAnywhere)
-		int32 MaxLines = 20;
-
-	UPROPERTY(EditAnywhere)
-		int32 StartLinesCount = 20;
+		int32 MaxLines;
 
 	UPROPERTY(EditAnywhere)
-		float DistanceBetweenLines = 100.f;
+		int32 StartLinesCount;
 
 	UPROPERTY(EditAnywhere)
-		float LampOffsetX = 493.f;
+		float DistanceBetweenLines;
 
 	UPROPERTY(EditAnywhere)
-		float LampZ = 320.f;
+		float LampOffsetX;
 
-	float CurrentY = 0.f;
+	UPROPERTY(EditAnywhere)
+		float LampZ;
 
-	float NextSpawnTrigger = 100.f;
+	float CurrentY;
 
-protected:
+	float NextSpawnTrigger;
 
+	int32 PassedLines;
+
+	//Functions
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
@@ -64,4 +71,47 @@ protected:
 	void CheckPlayerProgress();
 
 	void RemoveOldLine();
+
+	void SpawnOnbjects(int32 LineIndex);
+
+	void DeleteOldOnbjects(float LineY);
+
+	bool CheckSafeRoad(int32 LineIndex);
+
+	bool CheckDangerRoad(int32 LineIndex);
+
+	void SpawnBarrel(int32 LineIndex);
+
+	void SpawnCharger(int32 LineIndex);
+
+	void SpawnCar(int32 LineIndex);
+
+
+	//Array
+	UPROPERTY()
+		TArray<AActor*> SpawnedCharger;
+	UPROPERTY()
+		TArray<AActor*> SpawnedLamps;
+	UPROPERTY()
+		TArray<AMyActorBaseStaticObject*> SpawnedBarrel;
+	UPROPERTY(EditAnywhere, Category = "Road")
+		TArray<TSubclassOf<AMyActorRoadLine>> RoadLines;
+	UPROPERTY()
+		TArray<AMyActorRoadLine*> SpawnedLines;
+	UPROPERTY()
+		TArray<AMyActorBaseCar*>SpawnedCar;
+
+	//Objects
+	int32 MaxBarrelInRow;
+	int32 BarrelCouner;
+	int32 ChargerCounterInLine;
+	int32 ChargerDistance;
+
+	int32 TrainCounter;
+	int32 SafeCounter;
+	int32 DangerCounter;
+
+	UPROPERTY(EditAnywhere, Category = "Streaming")
+		int32 LinesBehindToKeep;
+
 };

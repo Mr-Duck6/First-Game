@@ -10,7 +10,7 @@ AMyActorLamp::AMyActorLamp()
 
 	LampLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("LampLight"));
 	LampLight->SetupAttachment(RootComponent);
-	LampLight->SetRelativeLocation(FVector(0, 0, 50));
+	LampLight->SetRelativeLocation(FVector(0, 0, 40));
 }
 
 void AMyActorLamp::SpawnLampForLine(float LineY)
@@ -19,7 +19,7 @@ void AMyActorLamp::SpawnLampForLine(float LineY)
 
 	float LeftX = 300;
 	float RightX = -300;
-	float Z = 200.f;
+	float Z = 250.f;
 
 	GetWorld()->SpawnActor<AActor>(LampBlueprintClass,FVector(LeftX, LineY, Z),
 	FRotator::ZeroRotator);

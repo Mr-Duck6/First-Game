@@ -36,7 +36,7 @@ void AMyActorRoadLine::GenerateCells()
     }
 }
 
-FVector AMyActorRoadLine::GetCellLocation(int32 Index)//Get location
+FVector AMyActorRoadLine::GetCellLocation(int32 Index)//Getter
 {
     if (!LinePoints.IsValidIndex(Index))
     {

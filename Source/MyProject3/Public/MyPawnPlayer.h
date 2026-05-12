@@ -7,6 +7,7 @@
 
 class AMyActorGeneratorMap;
 class AMyActorRoadLine;
+class AMyActorCharger;
 
 UCLASS()
 class MYPROJECT3_API AMyPawnPlayer : public APawn
@@ -42,13 +43,13 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-
-	//Move
+	//Functions
 	void MoveForward();
 	void MoveBackward();
 	void MoveLeft();
 	void MoveRight();
 
+	//Referance
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map")
 		class AMyActorGeneratorMap* MapGenerator;
 
@@ -56,10 +57,8 @@ public:
 	AMyActorRoadLine* CurrentLine;
 
 	int32 CellX;
-
 	FVector TargetLocation;
-
-	bool IsMoveing = false;
+	bool IsMoveing;
 
 	//Energy
 	FTimerHandle EnergyTimer;
@@ -71,26 +70,29 @@ public:
 	void PlayerDeath();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Energy")
-	bool IsCharging = false;
+	bool IsCharging;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Energy")
 	float CurrentEnergy;
 
-	float SpendEnergy=0.5;
+	float SpendEnergy;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Energy")
-	float MaxEnergy = 100;
+	float MaxEnergy;
 
 	//Time and player status
 	float CurrentTime;
-
-	FTimerHandle RecordTimer;
-
-	void UpdateTime();
-
-	bool IsDead = false;
+	bool IsDead;
 
 	UPROPERTY()
 		TArray<AMyActorRoadLine*> SpawnedLines;
 
+	FTimerHandle TimerAfterDead;
+
+	//void Restart();
+	FVector StartHit;
+	FVector EndHit;
+
+	void CanMove(FVector Direction);
+	bool bCanMove;
 };

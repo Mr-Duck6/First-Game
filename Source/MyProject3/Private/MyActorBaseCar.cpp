@@ -38,7 +38,7 @@ void AMyActorBaseCar::Tick(float DeltaTime)
 
 	MoveCar(DeltaTime);
 
-	if (GetActorLocation().X > MaxX)
+	if (GetActorLocation().Y > MaxY)
 	{
 		SetActorLocation(StartLocation);
 	}
@@ -52,7 +52,6 @@ void AMyActorBaseCar::MoveCar(float DeltaTime)//Move car
 
 void AMyActorBaseCar::InitializeCar(FVector Direction,float NewSpeed,FVector SpawnPos)//Edit car
 {
-	UE_LOG(LogTemp, Display, TEXT("Function InitializeCar called"))
 	MoveDirection = Direction;
 	Speed = NewSpeed;
 	StartLocation = SpawnPos;
@@ -66,8 +65,6 @@ void AMyActorBaseCar::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
 	AMyPawnPlayer* PlayerREF = Cast<AMyPawnPlayer>(OtherActor);
 	if (OtherActor && (OtherActor != this)&&PlayerREF)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Triger activate"))
-		UE_LOG(LogTemp, Warning, TEXT("Actor %s entered the trigger"), *OtherActor->GetName());
 		PlayerREF->PlayerDeath();
 	}
 }

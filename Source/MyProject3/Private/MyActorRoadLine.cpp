@@ -1,4 +1,6 @@
 #include "MyActorRoadLine.h"
+#include "CoreMinimal.h"
+#include "MyActorRoadLine.h"
 #include "MyActorTrain.h"
 #include "DrawDebugHelpers.h"
 #include "MyActorLamp.h"
@@ -15,12 +17,17 @@ AMyActorRoadLine::AMyActorRoadLine()
 
     DriveDistance = 1300;
     CarTimeToRespawn = 0;
+
+    CellSize = 100.f;
+    StartLocationY = -400.f;
+
+    MainRoadDirection = FVector::RightVector;
 }
 
 void AMyActorRoadLine::BeginPlay()
 {
     Super::BeginPlay();
-
+    MainRoadDirection = FMath::RandBool() ? MainRoadDirection : -MainRoadDirection;//Choce road direction
 }
 
 void AMyActorRoadLine::Tick(float DeltaTime)
@@ -33,19 +40,17 @@ void AMyActorRoadLine::GenerateCells()//Create grid
     UE_LOG(RoadLineLog, Display, TEXT("Function GenerateCells called"));
     LinePoints.Empty();
 
-    float StartLocationY = -400.f;
-
-    float CurrentX = GetActorLocation().X;
+    float CurrentXLine = GetActorLocation().X;
     float CurrentZ = GetActorLocation().Z;
 
     for (int i = 0; i < LineLength; i++)
     {
-        FVector CellLocation = FVector(CurrentX, StartLocationY, CurrentZ);
+        FVector CellLocation = FVector(CurrentXLine, StartLocationY, CurrentZ);
         LinePoints.Add(CellLocation);
 
         UE_LOG(RoadLineLog, Display, TEXT("Create point %s"), *CellLocation.ToString());
-
         StartLocationY += CellSize;
+        DrawDebugPoint(GetWorld(), CellLocation, 5.f, FColor::Green, false, -1);
     }
 }
 
@@ -56,18 +61,18 @@ FVector AMyActorRoadLine::GetCellLocation(int32 Index)//Getter
     return LinePoints[Index];
 }
 
+
 void AMyActorRoadLine::SpawnCar()//Car
 {
     UE_LOG(RoadLineLog, Display, TEXT("Function SpawnCar called"));
     if (BluePrintToSpawnCar.Num() == 0 || LinePoints.Num() == 0) return;
 
-    int32 CarsToSpawnCount = FMath::RandRange(1, 2);
     FActorSpawnParameters SpawnParams;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-    FVector MoveDir = GetActorRightVector();
-    FRotator SpawnRotation = MoveDir.Rotation();
-    SpawnRotation.Yaw += -90.f;
+    //Choce car numbers
+    int32 CarsToSpawnCount = FMath::RandRange(1, 2);
+    FRotator SpawnRotation = MainRoadDirection.Rotation();
 
     for (int32 i = 0; i < CarsToSpawnCount; i++)//Spawn car
     {
@@ -84,12 +89,9 @@ void AMyActorRoadLine::SpawnCar()//Car
 
         UE_LOG(RoadLineLog, Log, TEXT("Spawned car type %s at location %s"), *ClassToSpawn->GetName(), *SpawnLocation.ToString());
 
-        if (NewCar)//Edit car speed
+        if (NewCar)
         {
-            float RandomSpeed = FMath::FRandRange(80.f, 130.f);
-            NewCar->InitializeCar(MoveDir, RandomSpeed, SpawnLocation);
-
-            UE_LOG(RoadLineLog, Display, TEXT("Car speed is %f"), RandomSpeed);
+            NewCar->InitializeCar(MainRoadDirection, SpawnLocation);
 
             float PreSimulateDistance = 0.f;//Take distance
             if (i == 0)
@@ -103,11 +105,10 @@ void AMyActorRoadLine::SpawnCar()//Car
                 UE_LOG(RoadLineLog, Display, TEXT("PreSimulateDistance is %f"), PreSimulateDistance);
             }
 
-            FVector AdvancedLocation = SpawnLocation + (MoveDir * PreSimulateDistance);
+            FVector AdvancedLocation = SpawnLocation + (MainRoadDirection * PreSimulateDistance);
             NewCar->SetActorLocation(AdvancedLocation, false);
 
             NewCar->bCanMove = true;
-
             SpawnedCars.Add(NewCar);
         }
     }
@@ -124,7 +125,7 @@ void AMyActorRoadLine::SpawnLamp(int32 InLineIndex)
 
     if (!ClassToSpawn) return;
 
-    float LampOffsets[2] = { -300.f, 300.f };//Coridnate
+    float LampOffsets[3] = { -300.f, 0.f, 300.f };//Coridnate
 
     FActorSpawnParameters SpawnParams;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -136,25 +137,13 @@ void AMyActorRoadLine::SpawnLamp(int32 InLineIndex)
         if (NewLamp)
         {
             NewLamp->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
-
             NewLamp->SetActorRelativeLocation(FVector(0.f, LampOffsets[i], 200.f));
-
             SpawnedLamps.Add(NewLamp);
 
             UE_LOG(RoadLineLog, Display, TEXT("Spawn lamp"));
         }
     }
 
-    AMyActorLamp* CenterLamp = GetWorld()->SpawnActor<AMyActorLamp>(ClassToSpawn, 
-        FVector::ZeroVector, FRotator::ZeroRotator, SpawnParams);
-    if (CenterLamp)
-    {
-        CenterLamp->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
-        CenterLamp->SetActorRelativeLocation(FVector(0.f, 0.f, 200.f));
-        SpawnedLamps.Add(CenterLamp);
-
-        UE_LOG(RoadLineLog, Display, TEXT("Spawn centerLamp lamp"));
-    }
 }
 
 void AMyActorRoadLine::DeleteCars()
@@ -180,12 +169,12 @@ void AMyActorRoadLine::EndPlay(const EEndPlayReason::Type EndPlayReason)
     for (AMyActorLamp* Lamp : SpawnedLamps) if (Lamp) Lamp->Destroy();
 }
 
+
 void AMyActorRoadLine::InitializeRoadLine(int32 InLineIndex)
 {
     UE_LOG(RoadLineLog, Display, TEXT("Function InitializeRoadLine called"));
 
     LineIndex = InLineIndex;
-
     GenerateCells();
     SpawnLamp(InLineIndex); 
 
@@ -195,15 +184,14 @@ void AMyActorRoadLine::InitializeRoadLine(int32 InLineIndex)
         FActorSpawnParameters SpawnParams;
         SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-        FVector TrainSpawnLoc = GetActorLocation() - FVector(0.f, 2000.f, +30.f);
-
-        FRotator TrainRot = GetActorRotation() + FRotator(0,180,0);
+        FVector TrainSpawnLoc = GetActorLocation() - FVector(0.f, 2000.f,0.f);
+        FRotator TrainRot = GetActorRotation();
 
         SpawnedTrain = GetWorld()->SpawnActor<AMyActorTrain>(TrainClass, TrainSpawnLoc, TrainRot, SpawnParams);
         if (SpawnedTrain)
         {
             UE_LOG(RoadLineLog, Display, TEXT("Spawn train"));
-            SpawnedTrain->MoveDirection = GetActorRightVector();
+            SpawnedTrain->MoveDirection = MainRoadDirection;
             SpawnedTrain->StartLocation = TrainSpawnLoc;
 
             float AttackCooldown = 10.f;
@@ -220,32 +208,18 @@ void AMyActorRoadLine::InitializeRoadLine(int32 InLineIndex)
     }
 }
 
-void AMyActorRoadLine::TriggerTrainMove()//Edit white lamp
+void AMyActorRoadLine::TriggerTrainMove()//Start move
 {
     UE_LOG(RoadLineLog, Display, TEXT("Function TriggerTrainMove called "));
-    if (SpawnedTrain) {SpawnedTrain->StartMove();}
-    for (AMyActorLamp* Lamp : SpawnedLamps)
+    if (SpawnedTrain)
     {
-        if (Lamp && Lamp->LightComponent)
-        {
-            Lamp->LightComponent->SetLightColor(FLinearColor::White);
-            Lamp->LightComponent->SetIntensity(1000.f);
-        }
+        SpawnedTrain->StartMove();
     }
 }
 
 void AMyActorRoadLine::PlanTrainAttack()//Edit red lamp
 {
     UE_LOG(RoadLineLog, Display, TEXT("Function PlanTrainAttack called "));
-
-    for (AMyActorLamp* Lamp : SpawnedLamps)
-    {
-        if (Lamp && Lamp->LightComponent) 
-        {
-            Lamp->LightComponent->SetLightColor(FLinearColor::Red);
-            Lamp->LightComponent->SetIntensity(5000.f);
-        }
-    }
     GetWorld()->GetTimerManager().SetTimer(WarningLightTimer, this,
         &AMyActorRoadLine::TriggerTrainMove, 3.f, false);
 }

@@ -2,7 +2,7 @@
 #include "Components/BoxComponent.h"
 #include "MyPawnPlayer.h"
 #include "Kismet/GameplayStatics.h"
-#include "Components/PointLightComponent.h"
+#include "Components/SpotLightComponent.h"
 
 DEFINE_LOG_CATEGORY(TrainLog);
 
@@ -16,7 +16,7 @@ AMyActorTrain::AMyActorTrain()
     BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
     BoxCollision->SetupAttachment(RootComponent);
 
-    TrainLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("TrainLight"));
+    TrainLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("TrainLight"));
     TrainLight->SetupAttachment(RootComponent);
 
     bCanMove = false;
@@ -32,10 +32,7 @@ void AMyActorTrain::BeginPlay()
 
     StartLocation = GetActorLocation();
 
-    if (BoxCollision)
-    {
         BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &AMyActorTrain::OnOverlapBegin);
-    }
 }
 
 void AMyActorTrain::Tick(float DeltaTime)
@@ -48,7 +45,7 @@ void AMyActorTrain::Tick(float DeltaTime)
 
         SetActorLocation(NewLocation, false);
 
-        if (FVector::Dist(StartLocation, NewLocation) >= MaxDriveDistance)//Teleport
+        if (FVector::Dist(StartLocation, NewLocation) >= MaxDriveDistance)//Train moveing
         {
             bCanMove = false;
             SetActorLocation(StartLocation, false);
@@ -67,6 +64,13 @@ void AMyActorTrain::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
     bool bFromSweep, const FHitResult& SweepResult)//Kill player
 {
-    UE_LOG(TrainLog, Display, TEXT("Function OnOverlapBegin called"));
-    PlayerRef->PlayerDeath();
+    if (OtherActor && OtherActor != this)
+    {
+        AMyPawnPlayer* Player = Cast<AMyPawnPlayer>(OtherActor);
+        if (Player)
+        {
+            UE_LOG(TrainLog, Display, TEXT("Function OnOverlapBegin called"));
+            PlayerRef->PlayerDeath();
+        }
+    }
 }

@@ -27,9 +27,7 @@ protected:
 public:
     virtual void Tick(float DeltaTime) override;
 
-    void MoveCar(float DeltaTime);
-
-    void InitializeCar(FVector Direction, float InSpeed, FVector SpawnLocation);
+    void InitializeCar(FVector Direction, FVector SpawnLocation);
 
     UFUNCTION()
         void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -37,19 +35,18 @@ public:
             bool bFromSweep, const FHitResult& SweepResult);
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car Settings")
-        float MaxDriveDistance = 2100.f;
+        float MaxDriveDistance;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car Settings")
-        float Speed = 90.f;
+        float Speed;
 
     float CarTargetSpeed;
     float CarCurrentSpeed;
     bool bCanMove;
     float StartDelayTimer;
 
-    UPROPERTY()
-        FVector MoveDirection = FVector::RightVector;
-
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car Settings")
+        FVector MoveDirection;
     FVector StartLocation;
 
 };

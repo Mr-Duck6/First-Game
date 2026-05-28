@@ -23,7 +23,8 @@ public:
 
 	//Component
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-	class UStaticMeshComponent* PlayerMeshComponent;
+		class USkeletalMeshComponent* SkeletanMesh;
+
 
 	UPROPERTY(VisibleAnywhere)
 	class USceneComponent* SceneComponent;
@@ -45,6 +46,11 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	//Skins
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skins")
+		TArray<UStaticMesh*> AvailableStaticSkins;
+
+
 	//Moveming
 	void MoveForward();
 	void MoveBackward();
@@ -57,7 +63,10 @@ public:
 	FVector StartHit;
 	FVector EndHit;
 
-	//Map
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category="Move settings")
+	int32 OneStep;
+
+	//Player location, map
 	UPROPERTY()
 	AMyActorRoadLine* CurrentLine;
 	int32 CellX;
@@ -66,8 +75,7 @@ public:
 
 	UPROPERTY()
 		TArray<AMyActorRoadLine*> SpawnedLines;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map")
+	UPROPERTY()
 		AMyActorGeneratorMap* MapGenerator;
 
 	//Energy
@@ -82,7 +90,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Energy")
 	float CurrentEnergy;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Energy")
 	float SpendEnergy;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Energy")
 	float ChargeEnergy;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Energy")
@@ -92,8 +103,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player status")
 		void PlayerDeath();
 
-	void RestartLevel(bool IsDead);
-	float CurrentTime;
+	UFUNCTION(BlueprintCallable, Category = "Game Lifecycle")
+		void Restart();
+
 	bool bIsDead;
 
 	FTimerHandle TimerAfterDead;

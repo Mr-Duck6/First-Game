@@ -20,6 +20,9 @@ AMyActorBaseCar::AMyActorBaseCar()
     bCanMove = false;
 
     StartDelayTimer = FMath::FRandRange(0.f, 2.0f);
+    Speed = 90.f;
+    MaxDriveDistance =2100;
+
 }
 
 void AMyActorBaseCar::BeginPlay()
@@ -28,12 +31,9 @@ void AMyActorBaseCar::BeginPlay()
     StartLocation = GetActorLocation();
 }
 
-void AMyActorBaseCar::InitializeCar(FVector Direction, float InSpeed, FVector SpawnLocation)//Edit car
+void AMyActorBaseCar::InitializeCar(FVector Direction, FVector SpawnLocation)//Edit car
 {
     MoveDirection = Direction;
-    CarTargetSpeed = InSpeed;
-    CarCurrentSpeed = InSpeed;
-    Speed = InSpeed;
 }
 
 void AMyActorBaseCar::Tick(float DeltaTime)
@@ -81,7 +81,6 @@ void AMyActorBaseCar::Tick(float DeltaTime)
     }
 }
 
-void AMyActorBaseCar::MoveCar(float DeltaTime) {}
 
 void AMyActorBaseCar::OnOverlapBegin(UPrimitiveComponent* OverlappedComp,
     AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,

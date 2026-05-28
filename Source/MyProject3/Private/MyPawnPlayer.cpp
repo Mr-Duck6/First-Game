@@ -27,8 +27,8 @@ AMyPawnPlayer::AMyPawnPlayer()
     RootComponent = SceneComponent;
 
 
-    PlayerMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlayerMeshComponent"));
-    PlayerMeshComponent->SetupAttachment(SceneComponent);
+    SkeletanMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("PlayerMeshComponent"));
+    SkeletanMesh->SetupAttachment(SceneComponent);
 
     SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
     SpringArmComponent->SetupAttachment(SceneComponent);
@@ -45,16 +45,19 @@ AMyPawnPlayer::AMyPawnPlayer()
 
     //Map
     CellX = 4;
-    bCanMove = false;
-    bIsDead = false;
 
     //Moveming
     bIsMoveing = false;
     StartHit = FVector(0, 0, 50);
+    bCanMove = false;
+    OneStep = 1;
+
+    //Player
+    bIsDead = false;
 
 
-    PlayerMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);//Collision
-    PlayerMeshComponent->SetCollisionResponseToAllChannels(ECR_Block);
+    SkeletanMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);//Collision
+    SkeletanMesh->SetCollisionResponseToAllChannels(ECR_Block);
 }
 
 
@@ -64,18 +67,17 @@ void AMyPawnPlayer::BeginPlay()
 
     GetWorld()->GetTimerManager().SetTimer(EnergyTimer, this, &AMyPawnPlayer::UpdateEnergy, 0.05, true, 0.f);//Energy timer
 
-
     MapGenerator = Cast<AMyActorGeneratorMap>(UGameplayStatics::GetActorOfClass(GetWorld(), AMyActorGeneratorMap::StaticClass()));
 
     if (MapGenerator)//Set start location
     {
-        if (MapGenerator->SpawnedLines.Num() > 0)//Current line is first line
+        if (MapGenerator->SpawnedLines.Num() > 0)
         {
             CurrentLine = MapGenerator->SpawnedLines[0];
             UE_LOG(PlayerLog, Log, TEXT("CurrentLine location is %s"), *CurrentLine->GetActorLocation().ToString());
         }
 
-        if (CurrentLine)//Player start position
+        if (CurrentLine)
         {
             TargetLocation = CurrentLine->GetCellLocation(CellX);
             SetActorLocation(TargetLocation);
@@ -111,7 +113,7 @@ void AMyPawnPlayer::MoveForward()
     if (!MapGenerator || !CurrentLine) return;
 
     CanMove(FVector(100.f, 0.f, 0.f)); 
-    PlayerMeshComponent->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
+    SkeletanMesh->SetRelativeRotation(FRotator(0.f, 0.f, 0.f));
 
     if (bCanMove)
     {
@@ -119,7 +121,7 @@ void AMyPawnPlayer::MoveForward()
 
         if (MapGenerator->SpawnedLines.Find(CurrentLine, CurrentIndex))
         {
-            int32 NextIndex = CurrentIndex + 1;//Next line
+            int32 NextIndex = CurrentIndex + OneStep;//Next line
 
             if (!MapGenerator->SpawnedLines.IsValidIndex(NextIndex)) return;
 
@@ -137,14 +139,14 @@ void AMyPawnPlayer::MoveBackward()
     if (!MapGenerator || !CurrentLine) return;
 
     CanMove(FVector(-100.f, 0.f, 0.f));
-    PlayerMeshComponent->SetRelativeRotation(FRotator(0.f, 180.f, 0.f));
+    SkeletanMesh->SetRelativeRotation(FRotator(0.f, 180.f, 0.f));
 
     if (bCanMove)
     {
         int32 CurrentIndex = INDEX_NONE;
         if (MapGenerator->SpawnedLines.Find(CurrentLine, CurrentIndex))
         {
-            int32 PrevIndex = CurrentIndex - 1;//Next line
+            int32 PrevIndex = CurrentIndex - OneStep;//Next line
 
             if (!MapGenerator->SpawnedLines.IsValidIndex(PrevIndex)) return;
 
@@ -165,9 +167,9 @@ void AMyPawnPlayer::MoveLeft()//Move left
 
     if (bCanMove)
     {
-        PlayerMeshComponent->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
+        SkeletanMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 
-        int32 NextCell = CellX -1;
+        int32 NextCell = CellX - OneStep;
 
         if (!CurrentLine->LinePoints.IsValidIndex(NextCell)) return;
 
@@ -190,9 +192,9 @@ void AMyPawnPlayer::MoveRight()//Move right
     if (bCanMove)
     {
         UE_LOG(PlayerLog, Log, TEXT("bCanMove is %s"), bCanMove ? TEXT("true") : TEXT("false"));
-        PlayerMeshComponent->SetRelativeRotation(FRotator(0.f, 90.f, 0.f));
+        SkeletanMesh->SetRelativeRotation(FRotator(0.f, 90.f, 0.f));
 
-        int32 NextCell = CellX + 1;
+        int32 NextCell = CellX + OneStep;
 
         if (!CurrentLine->LinePoints.IsValidIndex(NextCell)) return;
 
@@ -206,12 +208,8 @@ void AMyPawnPlayer::MoveRight()//Move right
 
 void AMyPawnPlayer::UpdateEnergy()//Update energy
 {
-    if (bIsDead) return;
 
-    UE_LOG(PlayerLog, Log, TEXT("bIsDead is %s, bIsCharging is %s, CurrentEnergy is %f"),
-        bIsDead ? TEXT("true") : TEXT("false"),
-        bIsCharging ? TEXT("true") : TEXT("false"),
-        CurrentEnergy);
+    if (bIsDead) return;
 
     if (!bIsCharging)//Spend energy
     {
@@ -230,6 +228,7 @@ void AMyPawnPlayer::UpdateEnergy()//Update energy
         PlayerDeath();
         return;               
     }
+
 }
 
 void AMyPawnPlayer::PlayerDeath()//Player death
@@ -244,8 +243,8 @@ void AMyPawnPlayer::PlayerDeath()//Player death
         TimerComp->StopAndCheckRecord();
     }
 
-    GetWorldTimerManager().ClearTimer(EnergyTimer);
-    GetWorld()->GetTimerManager().SetTimer(TimerAfterDead, this, &AMyPawnPlayer::Restart, 10, false);
+   GetWorldTimerManager().ClearTimer(EnergyTimer);
+  GetWorld()->GetTimerManager().SetTimer(TimerAfterDead, this, &AMyPawnPlayer::Restart, 1.0f, false);
 
 }
 
@@ -253,7 +252,6 @@ void AMyPawnPlayer::PlayerDeath()//Player death
 void AMyPawnPlayer::CanMove(FVector Direction)//Can move?
 {
     UE_LOG(PlayerLog,Display,TEXT("Function CanMove called"))
-
     FHitResult HitResult;
     FVector LocalStart = GetActorLocation() + FVector(0, 0, 50);
     FVector LocalEnd = LocalStart + Direction;
@@ -267,12 +265,10 @@ void AMyPawnPlayer::CanMove(FVector Direction)//Can move?
     {
         UE_LOG(PlayerLog, Log, TEXT("bHit is %s"), bHit ? TEXT("true") : TEXT("false"));
         AActor* HitActor = HitResult.GetActor();
-
         if (HitActor)
         {
             UE_LOG(PlayerLog, Warning, TEXT(" %s "), *HitActor->GetName());
         }
-
         if (HitActor && HitActor->IsA(AMyActorCharger::StaticClass()))
         {
             bCanMove = true;
@@ -286,12 +282,18 @@ void AMyPawnPlayer::CanMove(FVector Direction)//Can move?
     else
     {
         bCanMove = true;
-
         bIsCharging = false;
     }
-
     UE_LOG(PlayerLog, Log, TEXT("bCanMove is %s"), bCanMove ? TEXT("true") : TEXT("false"));
     UE_LOG(PlayerLog, Log, TEXT("bIsCharging is %s"), bIsCharging ? TEXT("true") : TEXT("false"));
     DrawDebugLine(GetWorld(), LocalStart, LocalEnd, bHit ? FColor::Red : FColor::Green, false, 1.0f, 0, 2.0f);
 
+}
+
+
+void AMyPawnPlayer::Restart()
+{
+    FString CurrentLevelName = "MainMenu";
+
+       // UGameplayStatics::OpenLevel(GetWorld(), FName(*CurrentLevelName));
 }

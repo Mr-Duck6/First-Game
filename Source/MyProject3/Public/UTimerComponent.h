@@ -26,18 +26,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Timer")
 		void StopAndCheckRecord();
 
-	UPROPERTY(BlueprintReadOnly, Category = "Timer")
-		float CurrentTime = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
+		float CurrentTime;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Timer")
-		float BestTime = 0.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
+		float BestTime;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Timer")
 		bool bIsTimerRunning = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SaveGame")
+		FString SaveSlotName = TEXT("MyTimerSaveSlot");
+
 private:
 	void LoadRecord();
 	void SaveRecord(float NewRecord);
-
-	const FString SaveSlotName = TEXT("Slot1");
 };

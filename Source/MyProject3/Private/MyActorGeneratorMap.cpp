@@ -14,24 +14,21 @@ AMyActorGeneratorMap::AMyActorGeneratorMap()
     Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
     RootComponent = Scene;
 
-    Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-    Mesh->SetupAttachment(Scene);
+    DevMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+    DevMesh->SetupAttachment(Scene);
 
     TrainCounter = 0;
     SafeCounter = 0;
     DangerCounter = 0;
-    ChargerCounterInLine = 0;
+    ChargerCounter = 0;
     MaxBarrelInLine = 3;
     BarrelCouner = 0;
 
-    LinesBehindToKeep = 5;
-    MaxLines = 29;
+    MaxLines = 30;
     StartLinesCount = 30;
     DistanceBetweenLines = 100.f;
-    CurrentX = 0.f;
+    CurrentXLine = 0.f;
     NextSpawnTrigger = 5.f;
-
-    LinesPassed = 0;
 }
 
 void AMyActorGeneratorMap::BeginPlay()
@@ -82,7 +79,6 @@ void AMyActorGeneratorMap::CheckPlayerProgress()
 
     if (SpawnedLines.Num() > 0)//Delete line behind the fog
     {
-
         AMyActorRoadLine* OldLine = SpawnedLines[0];
         if (OldLine)
         {
@@ -129,7 +125,7 @@ void AMyActorGeneratorMap::SpawnOnbjects(int32 LineIndex)
     if (!TargetLine) return;
 
     BarrelCouner = 0;
-    ChargerCounterInLine = 0;
+    ChargerCounter = 0;
 
     int32 RandomNum = FMath::RandRange(0, 1);//Chose object to spawn
     if (RandomNum == 0) SpawnBarrel(TargetLine);
@@ -139,7 +135,7 @@ void AMyActorGeneratorMap::SpawnOnbjects(int32 LineIndex)
 void AMyActorGeneratorMap::SpawnBarrel(AMyActorRoadLine* TargetLine)
 {
     UE_LOG(GeneratorMapLog, Display, TEXT("Function SpawnBarrel called"));
-    if (!BlueprintToSpawnBarrel || !TargetLine) return;
+    if (!BlueprintToSpawnStaticObject || !TargetLine) return;
 
     if (CheckSafeRoad(TargetLine))
     {
@@ -154,7 +150,7 @@ void AMyActorGeneratorMap::SpawnBarrel(AMyActorRoadLine* TargetLine)
                 FActorSpawnParameters SpawnParams;
                 SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-                AMyActorBaseStaticObject* NewObject = GetWorld()->SpawnActor<AMyActorBaseStaticObject>(BlueprintToSpawnBarrel,
+                AMyActorBaseStaticObject* NewObject = GetWorld()->SpawnActor<AMyActorBaseStaticObject>(BlueprintToSpawnStaticObject,
                     SpawnLoc, FRotator::ZeroRotator, SpawnParams);
 
                 if (NewObject)
@@ -177,7 +173,7 @@ void AMyActorGeneratorMap::SpawnCharger(AMyActorRoadLine* TargetLine)
     {
         for (int32 i = 0; i < TargetLine->LinePoints.Num(); i++)
         {
-            if (ChargerCounterInLine == 1) return;
+            if (ChargerCounter == 1) return;
 
             if (FMath::RandRange(0, 1) == 0)
             {
@@ -191,8 +187,8 @@ void AMyActorGeneratorMap::SpawnCharger(AMyActorRoadLine* TargetLine)
 
                 if (NewObject)
                 {
-                    UE_LOG(GeneratorMapLog, Log, TEXT("ChargerCounterInLine is %b"), ChargerCounterInLine);
-                    ChargerCounterInLine++;
+                    UE_LOG(GeneratorMapLog, Log, TEXT("ChargerCounter is %b"), ChargerCounter);
+                    ChargerCounter++;
                     SpawnedCharger.Add(NewObject);
                 }
             }
@@ -275,11 +271,12 @@ void AMyActorGeneratorMap::SpawnLine()
         else if (TrainCounter >= 3) { RandomIndex = 0; TrainCounter = 0; }
     }
 
+
     UE_LOG(GeneratorMapLog, Log, TEXT("DangerCounter is %d, SafeCounter is %d,TrainCounter is %d"),
         DangerCounter, SafeCounter, TrainCounter);
 
     TSubclassOf<AMyActorRoadLine> RandomClass = RoadLines[RandomIndex];
-    FVector SpawnLocation = GetActorLocation() + FVector(CurrentX, 0.f, 0.f);
+    FVector SpawnLocation = GetActorLocation() + FVector(CurrentXLine, 0.f, 0.f);
  
     AMyActorRoadLine* NewLine = GetWorld()->SpawnActor<AMyActorRoadLine>(RandomClass,//Spawn
         SpawnLocation, FRotator::ZeroRotator);
@@ -287,11 +284,12 @@ void AMyActorGeneratorMap::SpawnLine()
     if (NewLine)
     {
         UE_LOG(GeneratorMapLog, Log, TEXT("Spawn %s road"),*RandomClass);
-        int32 GlobalLineIndex = FMath::RoundToInt(CurrentX / DistanceBetweenLines);
+        int32 GlobalLineIndex = FMath::RoundToInt(CurrentXLine / DistanceBetweenLines);
 
         NewLine->InitializeRoadLine(GlobalLineIndex);
 
         SpawnedLines.Add(NewLine);
-        CurrentX += DistanceBetweenLines;
+        CurrentXLine += DistanceBetweenLines;
     }
 }
+

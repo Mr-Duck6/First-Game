@@ -5,6 +5,9 @@
 UTimerComponent::UTimerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	BestTime = 0.f;
+	CurrentTime = 0.f;
 }
 
 void UTimerComponent::BeginPlay()
@@ -43,7 +46,18 @@ void UTimerComponent::StopAndCheckRecord()
 
 void UTimerComponent::SaveRecord(float NewRecord)
 {
-	UMySaveGame* SaveGameInstanceRef = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
+	if (SaveSlotName.IsEmpty())
+	{
+		SaveSlotName = TEXT("DefaultSlot");
+	}
+
+	UMySaveGame* SaveGameInstanceRef = nullptr;
+
+	if (UGameplayStatics::DoesSaveGameExist(SaveSlotName, 0))
+	{
+		SaveGameInstanceRef = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
+	}
+
 	if (!SaveGameInstanceRef)
 	{
 		SaveGameInstanceRef = Cast<UMySaveGame>(UGameplayStatics::CreateSaveGameObject(UMySaveGame::StaticClass()));
@@ -52,18 +66,13 @@ void UTimerComponent::SaveRecord(float NewRecord)
 	if (SaveGameInstanceRef)
 	{
 		SaveGameInstanceRef->BestTime = NewRecord;
-		bool bIsSaved = UGameplayStatics::SaveGameToSlot(SaveGameInstanceRef, SaveSlotName, 0);
-
-		if (bIsSaved)
-		{
-			UE_LOG(LogTemp, Log, TEXT("Record securely saved. New Best Time: %.2f"), NewRecord);
-		}
+		UGameplayStatics::SaveGameToSlot(SaveGameInstanceRef, SaveSlotName, 0);
 	}
 }
 
-void UTimerComponent::LoadRecord()
+void UTimerComponent::LoadRecord()//Load
 {
-	if (UGameplayStatics::DoesSaveGameExist(SaveSlotName, 0))
+	if (UGameplayStatics::DoesSaveGameExist(SaveSlotName, 0))//Check file
 	{
 		UMySaveGame* LoadedGame = Cast<UMySaveGame>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
 		if (LoadedGame)

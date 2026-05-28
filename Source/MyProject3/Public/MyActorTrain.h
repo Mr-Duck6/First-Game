@@ -5,7 +5,7 @@
 #include "MyActorTrain.generated.h"
 
 class UBoxComponent;
-class UPointLightComponent; 
+class USpotLightComponent;
 class AMyPawnPlayer;
 
 DECLARE_LOG_CATEGORY_EXTERN(TrainLog, Log, All);
@@ -26,7 +26,7 @@ public:
         UBoxComponent* BoxCollision;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-        UPointLightComponent* TrainLight;
+        USpotLightComponent* TrainLight;
 
 protected:
     virtual void BeginPlay() override;
@@ -37,7 +37,7 @@ public:
     FTimerHandle TrainTimer;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Train Settings")
-        float Speed = 1000.f;
+        float Speed = 2000.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Train Settings")
         float MaxDriveDistance = 4000.f;

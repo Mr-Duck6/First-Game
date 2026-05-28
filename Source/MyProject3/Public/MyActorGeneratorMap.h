@@ -26,13 +26,13 @@ public:
         USceneComponent* Scene;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-        UStaticMeshComponent* Mesh;
+        UStaticMeshComponent* DevMesh;
 
     //Objects ref
-    UPROPERTY(EditAnywhere, Category = "Prefabs")
-        TSubclassOf<AMyActorBaseStaticObject> BlueprintToSpawnBarrel;
+    UPROPERTY(EditAnywhere, Category = "StaticObject")
+        TSubclassOf<AMyActorBaseStaticObject> BlueprintToSpawnStaticObject;
 
-    UPROPERTY(EditAnywhere, Category = "Prefabs")
+    UPROPERTY(EditAnywhere, Category = "Charger")
         TSubclassOf<AMyActorCharger> BlueprintToSpawnCharger;
 
     UPROPERTY()
@@ -41,58 +41,59 @@ public:
     UPROPERTY()
         AMyActorFogKiller* Fog;
 
-    //Map settings
-    UPROPERTY(EditAnywhere, Category = "Map Settings")
+
+    //Map generation settings
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map Settings")
         int32 MaxLines;
 
-    UPROPERTY(EditAnywhere, Category = "Map Settings")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map Settings")
     int32 MaxBarrelInLine;
 
-    UPROPERTY(EditAnywhere, Category = "Map Settings")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map Settings")
         int32 StartLinesCount;
 
-    UPROPERTY(EditAnywhere, Category = "Map Settings")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map Settings")
         float DistanceBetweenLines;
 
-    float CurrentX;
-    float NextSpawnTrigger;
-    UPROPERTY(EditAnywhere, Category = "Map Settings")
-        int32 LinesBehindToKeep;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map Settings")
+        float NextSpawnTrigger;
+
+
+    float CurrentXLine;
+
 
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
 
 
     //Functions
-    void SpawnLine();
-
     void CheckPlayerProgress();
+    void SpawnLine();
 
     void RemoveOldLine();
 
+
     void SpawnOnbjects(int32 LineIndex);
 
-    void DeleteOldOnbjects(float LineX);
-
     bool CheckSafeRoad(AMyActorRoadLine* Line);
-
     bool CheckDangerRoad(AMyActorRoadLine* Line);
 
     void SpawnBarrel(AMyActorRoadLine* TargetLine);
-
     void SpawnCharger(AMyActorRoadLine* TargetLine);
 
+    void DeleteOldOnbjects(float LineX);
 
 
     UPROPERTY(EditAnywhere, Category = "Map Settings")
         TArray<TSubclassOf<AMyActorRoadLine>> RoadLines;
 
-
     UPROPERTY()
-        TArray<AActor*> SpawnedCharger;
+        TArray<AMyActorCharger*> SpawnedCharger;
 
+    //Created objects arrays
     UPROPERTY()
         TArray<AMyActorBaseStaticObject*> SpawnedBarrel;
+
     UPROPERTY()
         TArray<AMyActorRoadLine*> SpawnedLines;
 
@@ -100,10 +101,7 @@ public:
     int32 TrainCounter;
     int32 SafeCounter;
     int32 DangerCounter;
-
     int32 BarrelCouner;
-    int32 ChargerCounterInLine;
-
-    int32 LinesPassed;
+    int32 ChargerCounter;
 
 };

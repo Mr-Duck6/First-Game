@@ -39,15 +39,12 @@ void AMyActorGeneratorMap::BeginPlay()
     Fog = Cast<AMyActorFogKiller>(UGameplayStatics::GetActorOfClass(GetWorld(),
         AMyActorFogKiller::StaticClass()));
 
-
-    SpawnLine();//FIRST LINE 4 LINE IS SAFE!!!!!!!!!!!!!!!!!
-
-    for (int32 i = 1; i < StartLinesCount; i++)//Spawn first objets
+    for (int32 i = 0; i < StartLinesCount; i++)//Spawn first objets
     {
         SpawnLine();
     }
 
-    for (int32 i = 1; i < StartLinesCount; i++)
+    for (int32 i = 3; i < StartLinesCount; i++)
     {
         SpawnOnbjects(i);
     }
@@ -107,16 +104,16 @@ void AMyActorGeneratorMap::CheckPlayerProgress()
 
 bool AMyActorGeneratorMap::CheckSafeRoad(AMyActorRoadLine* Line)//Is safe road
 {
-    UE_LOG(GeneratorMapLog, Display, TEXT("Function CheckSafeRoad called"));//REDO INDEX IN GENERATOR MAP ROAD!!!!!!!!!!!!
-    if (!Line || !RoadLines.IsValidIndex(1)) return false;
-    return Line->GetClass() == RoadLines[1];
+    UE_LOG(GeneratorMapLog, Display, TEXT("Function CheckSafeRoad called"));
+    if (!Line || !RoadLines.IsValidIndex(0)) return false;
+    return Line->GetClass() == RoadLines[0];
 }
 
 bool AMyActorGeneratorMap::CheckDangerRoad(AMyActorRoadLine* Line)//Is danger road
 {
     UE_LOG(GeneratorMapLog, Display, TEXT("Function CheckDangerRoad called"));
-    if (!Line || !RoadLines.IsValidIndex(0)) return false;
-    return Line->GetClass() == RoadLines[0];
+    if (!Line || !RoadLines.IsValidIndex(1)) return false;
+    return Line->GetClass() == RoadLines[1];
 }
 
 void AMyActorGeneratorMap::SpawnOnbjects(int32 LineIndex)
@@ -169,7 +166,7 @@ void AMyActorGeneratorMap::SpawnBarrel(AMyActorRoadLine* TargetLine)//Spawn barr
 
 void AMyActorGeneratorMap::SpawnCharger(AMyActorRoadLine* TargetLine)//Spawn charger
 {
-    UE_LOG(GeneratorMapLog, Display, TEXT("Function SpawnCharger called"));//MAKE CHANCE TO CHARGER SPAWN LOWER AND MAKE ALL 30 LINE IS SAFE
+    UE_LOG(GeneratorMapLog, Display, TEXT("Function SpawnCharger called"));
     if (!BlueprintToSpawnCharger || !TargetLine) return;
 
     if (CheckSafeRoad(TargetLine))
@@ -177,8 +174,8 @@ void AMyActorGeneratorMap::SpawnCharger(AMyActorRoadLine* TargetLine)//Spawn cha
         for (int32 i = 0; i < TargetLine->LinePoints.Num(); i++)
         {
             if (ChargerCounter == 1) return;
-
-            if (FMath::RandRange(0, 1) == 0)
+            int32 ProcentToSpawnCharger = FMath::RandRange(0, 100);
+            if (ProcentToSpawnCharger >=45)
             {
                 UE_LOG(GeneratorMapLog, Display, TEXT("Spawn charger"));
                 FVector SpawnLoc = TargetLine->LinePoints[i];
@@ -252,27 +249,19 @@ void AMyActorGeneratorMap::SpawnLine()
     UE_LOG(GeneratorMapLog, Display, TEXT("Function SpawnLine called"));
     if (RoadLines.Num() == 0) return;
     int32 RandomIndex = 0;
-    if (SpawnedLines.Num() == 0)//First road is safe
-    {
-        RandomIndex = 1;
-        SafeCounter++;
-    }
-    else
-    {
         RandomIndex = FMath::RandRange(0, RoadLines.Num() - 1);//Random road
         switch (RandomIndex)//Update counters
         {
-        case 0: DangerCounter++; break;
-        case 1: SafeCounter++; break;
+        case 0:  SafeCounter++; break;
+        case 1: DangerCounter++; break;
         case 2: TrainCounter++;  break;
         }
 
-        if (DangerCounter >= 4) { RandomIndex = 1; DangerCounter = 0; }//Check limits
+        if (DangerCounter >= 4) { RandomIndex = 0; DangerCounter = 0; }//Check limits
 
-        else if (SafeCounter >= 3){ RandomIndex = 0; SafeCounter = 0;}
+        else if (SafeCounter >= 3){ RandomIndex = 1; SafeCounter = 0;}
 
         else if (TrainCounter >= 3) { RandomIndex = 0; TrainCounter = 0; }
-    }
 
 
     UE_LOG(GeneratorMapLog, Log, TEXT("DangerCounter is %d, SafeCounter is %d,TrainCounter is %d"),

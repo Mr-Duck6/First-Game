@@ -39,7 +39,10 @@ void AMyActorGeneratorMap::BeginPlay()
     Fog = Cast<AMyActorFogKiller>(UGameplayStatics::GetActorOfClass(GetWorld(),
         AMyActorFogKiller::StaticClass()));
 
-    for (int32 i = 0; i < StartLinesCount; i++)//Spawn first objets
+
+    SpawnLine();//FIRST LINE 4 LINE IS SAFE!!!!!!!!!!!!!!!!!
+
+    for (int32 i = 1; i < StartLinesCount; i++)//Spawn first objets
     {
         SpawnLine();
     }
@@ -104,7 +107,7 @@ void AMyActorGeneratorMap::CheckPlayerProgress()
 
 bool AMyActorGeneratorMap::CheckSafeRoad(AMyActorRoadLine* Line)//Is safe road
 {
-    UE_LOG(GeneratorMapLog, Display, TEXT("Function CheckSafeRoad called"));
+    UE_LOG(GeneratorMapLog, Display, TEXT("Function CheckSafeRoad called"));//REDO INDEX IN GENERATOR MAP ROAD!!!!!!!!!!!!
     if (!Line || !RoadLines.IsValidIndex(1)) return false;
     return Line->GetClass() == RoadLines[1];
 }
@@ -128,11 +131,11 @@ void AMyActorGeneratorMap::SpawnOnbjects(int32 LineIndex)
     ChargerCounter = 0;
 
     int32 RandomNum = FMath::RandRange(0, 1);//Chose object to spawn
-    if (RandomNum == 0) SpawnBarrel(TargetLine);
-    else SpawnCharger(TargetLine);
+    if (RandomNum == 0) { SpawnBarrel(TargetLine);}
+    else { SpawnCharger(TargetLine); }
 }
 
-void AMyActorGeneratorMap::SpawnBarrel(AMyActorRoadLine* TargetLine)
+void AMyActorGeneratorMap::SpawnBarrel(AMyActorRoadLine* TargetLine)//Spawn barrel
 {
     UE_LOG(GeneratorMapLog, Display, TEXT("Function SpawnBarrel called"));
     if (!BlueprintToSpawnStaticObject || !TargetLine) return;
@@ -164,9 +167,9 @@ void AMyActorGeneratorMap::SpawnBarrel(AMyActorRoadLine* TargetLine)
     }
 }
 
-void AMyActorGeneratorMap::SpawnCharger(AMyActorRoadLine* TargetLine)
+void AMyActorGeneratorMap::SpawnCharger(AMyActorRoadLine* TargetLine)//Spawn charger
 {
-    UE_LOG(GeneratorMapLog, Display, TEXT("Function SpawnCharger called"));
+    UE_LOG(GeneratorMapLog, Display, TEXT("Function SpawnCharger called"));//MAKE CHANCE TO CHARGER SPAWN LOWER AND MAKE ALL 30 LINE IS SAFE
     if (!BlueprintToSpawnCharger || !TargetLine) return;
 
     if (CheckSafeRoad(TargetLine))

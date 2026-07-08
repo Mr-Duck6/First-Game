@@ -184,7 +184,16 @@ void AMyActorRoadLine::InitializeRoadLine(int32 InLineIndex)
         FActorSpawnParameters SpawnParams;
         SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-        FVector TrainSpawnLoc = GetActorLocation() - FVector(0.f, 2000.f,0.f);
+        FVector TrainSpawnLoc;
+
+        if (MainRoadDirection == FVector(0, 1, 0))
+        {
+            TrainSpawnLoc = GetActorLocation() - FVector(0.f, 2000.f, 0.f);
+        }
+        else
+        {
+            TrainSpawnLoc = GetActorLocation() + FVector(0.f, 2000.f, 0.f);
+        }
         FRotator TrainRot = GetActorRotation();
 
         SpawnedTrain = GetWorld()->SpawnActor<AMyActorTrain>(TrainClass, TrainSpawnLoc, TrainRot, SpawnParams);
@@ -194,7 +203,7 @@ void AMyActorRoadLine::InitializeRoadLine(int32 InLineIndex)
             SpawnedTrain->MoveDirection = MainRoadDirection;
             SpawnedTrain->StartLocation = TrainSpawnLoc;
 
-            float AttackCooldown = 10.f;
+            float AttackCooldown = FMath::RandRange(9, 11);
             GetWorld()->GetTimerManager().SetTimer(TrainCycleTimer, this,
                 &AMyActorRoadLine::PlanTrainAttack, AttackCooldown, true);
         }

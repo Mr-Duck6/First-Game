@@ -45,7 +45,7 @@ void AMyActorTrain::Tick(float DeltaTime)
 
         SetActorLocation(NewLocation, false);
 
-        if (FVector::Dist(StartLocation, NewLocation) >= MaxDriveDistance)//Train moveing
+        if (FVector::Dist(StartLocation, NewLocation) >= MaxDriveDistance)//Train moving
         {
             bCanMove = false;
             SetActorLocation(StartLocation, false);

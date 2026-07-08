@@ -58,7 +58,16 @@ void AMyActorCharger::OnOverlapBegin(UPrimitiveComponent* OverlappedComp,//Charg
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	UE_LOG(ChargerLog, Display, TEXT("Player on charger"));
+	if (Player)
+	{
+		UE_LOG(ChargerLog, Display, TEXT("Player on charger"));
+		UE_LOG(ChargerLog, Display, TEXT("bIsCharging = %s"), Player->bIsCharging ? TEXT("true") : TEXT("false"));
+		Player->bIsCharging = true;
+	}
+	else
+	{
+		UE_LOG(ChargerLog, Display, TEXT("Player not found"));
+	}
 }
 
 void  AMyActorCharger::OnOverlapEnd(UPrimitiveComponent* OverlappedComp,//Stop charge player
@@ -66,6 +75,15 @@ void  AMyActorCharger::OnOverlapEnd(UPrimitiveComponent* OverlappedComp,//Stop c
 	UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex)
 {
-	UE_LOG(ChargerLog, Display, TEXT("Player out of charge"));
+	if (Player)
+	{
+		UE_LOG(ChargerLog, Display, TEXT("Player out of charge"));
+		UE_LOG(ChargerLog, Display, TEXT("bIsCharging = %s"), Player->bIsCharging ? TEXT("true") : TEXT("false"));
+		Player->bIsCharging = false;
+	}
+	else
+	{
+		UE_LOG(ChargerLog, Display, TEXT("Player not found"));
+	}
 }
 

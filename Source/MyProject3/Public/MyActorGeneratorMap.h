@@ -56,7 +56,7 @@ public:
         float DistanceBetweenLines;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Map Settings")
-        float NextSpawnTrigger;
+        int32 NextSpawnTrigger;
 
 
     float CurrentXLine;
@@ -103,5 +103,7 @@ public:
     int32 DangerCounter;
     int32 BarrelCouner;
     int32 ChargerCounter;
+
+    int32 FirstThreeRoad;
 
 };

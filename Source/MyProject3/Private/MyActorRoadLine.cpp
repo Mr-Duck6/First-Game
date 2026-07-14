@@ -15,13 +15,14 @@ AMyActorRoadLine::AMyActorRoadLine()
     RoadMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RoadMesh"));
     RootComponent = RoadMesh;
 
-    DriveDistance = 1300;
-    CarTimeToRespawn = 0;
-
+    LineIndex = 0;
+    LineLength = 11;
     CellSize = 100.f;
-    StartLocationY = -400.f;
-
+    StartLocationY = -500.f;
+    StartCarYLocation = 650;
     MainRoadDirection = FVector::RightVector;
+
+    YSpawn = -600;
 }
 
 void AMyActorRoadLine::BeginPlay()
@@ -65,55 +66,41 @@ FVector AMyActorRoadLine::GetCellLocation(int32 Index)//Getter
 void AMyActorRoadLine::SpawnCar()//Car
 {
     UE_LOG(RoadLineLog, Display, TEXT("Function SpawnCar called"));
-    if (BluePrintToSpawnCar.Num() == 0 || LinePoints.Num() == 0) return;
-
-    FActorSpawnParameters SpawnParams;
-    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-    //Choce car numbers
-    int32 CarsToSpawnCount = FMath::RandRange(1, 2);
-    FRotator SpawnRotation = MainRoadDirection.Rotation();
-
-    for (int32 i = 0; i < CarsToSpawnCount; i++)//Spawn car
+    if (BluePrintToSpawnCar.Num() == 0 || LinePoints.Num() == 0 || CarsCases.Num() == 0)
     {
-        int32 RandomClassIndex = FMath::RandRange(0, BluePrintToSpawnCar.Num() - 1);
-        TSubclassOf<AMyActorBaseCar> ClassToSpawn = BluePrintToSpawnCar[RandomClassIndex];
-
-        if (!ClassToSpawn) continue;
-
-        float StartYOffset = -600.f - (i * 800.f);
-        FVector SpawnLocation = FVector(GetActorLocation().X, StartYOffset, GetActorLocation().Z + 10.f);
-
-        AMyActorBaseCar* NewCar = GetWorld()->SpawnActor<AMyActorBaseCar>(ClassToSpawn, SpawnLocation,
-            SpawnRotation, SpawnParams);
-
-        UE_LOG(RoadLineLog, Log, TEXT("Spawned car type %s at location %s"), *ClassToSpawn->GetName(), *SpawnLocation.ToString());
-
-        if (NewCar)
-        {
-            NewCar->InitializeCar(MainRoadDirection, SpawnLocation);
-
-            float PreSimulateDistance = 0.f;//Take distance
-            if (i == 0)
-            {
-                PreSimulateDistance = FMath::FRandRange(400.f, 1200.f);
-                UE_LOG(RoadLineLog, Display, TEXT("PreSimulateDistance is %f"), PreSimulateDistance);
-            }
-            else
-            {
-                PreSimulateDistance = FMath::FRandRange(0.f, 300.f);
-                UE_LOG(RoadLineLog, Display, TEXT("PreSimulateDistance is %f"), PreSimulateDistance);
-            }
-
-            FVector AdvancedLocation = SpawnLocation + (MainRoadDirection * PreSimulateDistance);
-            NewCar->SetActorLocation(AdvancedLocation, false);
-
-            NewCar->bCanMove = true;
-            SpawnedCars.Add(NewCar);
-        }
+        UE_LOG(LogTemp, Error, TEXT("Array is empty"));
+        return;
     }
-}
+        FActorSpawnParameters SpawnParams;
+        int32 CaseNum = FMath::RandRange(0, CarsCases.Num()-1);
 
+        if (BluePrintToSpawnCar.IsValidIndex(CarsCases[CaseNum]->CarsType))
+        {
+            UE_LOG(RoadLineLog, Display, TEXT("Car Array is valid"));
+            TSubclassOf<AMyActorBaseCar> ClassCarToSpawn = BluePrintToSpawnCar[CarsCases[CaseNum]->CarsType];
+            for (int i = 0; i < CarsCases[CaseNum]->CarsOnTheRoad; i++)
+            {
+                TSubclassOf<AMyActorBaseCar> ClassToSpawn = BluePrintToSpawnCar[CarsCases[CaseNum]->CarsType];
+                FVector SpawnLocation = GetActorLocation() - FVector (0,StartCarYLocation,0);
+                FRotator SpawnRoation = FRotator::ZeroRotator + FRotator(0, 270, 0);
+
+                AMyActorBaseCar* NewCar = GetWorld()->SpawnActor<AMyActorBaseCar>(ClassToSpawn, SpawnLocation, SpawnRoation, SpawnParams);
+                NewCar->Speed = CarsCases[CaseNum]->Speed;
+                if (NewCar)
+                {
+                    UE_LOG(RoadLineLog, Display, TEXT("First car spawn"));
+                    NewCar->Speed = CarsCases[CaseNum]->Speed;
+                    SpawnedCars.Add(NewCar);
+                    YSpawn = YSpawn - 50;
+                }
+            }
+        }
+
+      
+}
+    
+
+//////////////////////
 void AMyActorRoadLine::SpawnLamp(int32 InLineIndex)
 {
     UE_LOG(RoadLineLog, Display, TEXT("Function SpawnLamp called"));
@@ -125,12 +112,12 @@ void AMyActorRoadLine::SpawnLamp(int32 InLineIndex)
 
     if (!ClassToSpawn) return;
 
-    float LampOffsets[3] = { -300.f, 0.f, 300.f };//Coridnate
+    float LampOffsets[2] = {-100, 000 };//Coridnate
 
     FActorSpawnParameters SpawnParams;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-    for (int i = 0; i < 2; i++)//Spawn
+    for (int i = 0; i < 1; i++)//Spawn
     {
         AMyActorLamp* NewLamp = GetWorld()->SpawnActor<AMyActorLamp>(ClassToSpawn, FVector::ZeroVector, 
             FRotator::ZeroRotator, SpawnParams);
@@ -145,6 +132,7 @@ void AMyActorRoadLine::SpawnLamp(int32 InLineIndex)
     }
 
 }
+//////////////////////////
 
 void AMyActorRoadLine::DeleteCars()
 {

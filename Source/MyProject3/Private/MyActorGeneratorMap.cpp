@@ -28,7 +28,9 @@ AMyActorGeneratorMap::AMyActorGeneratorMap()
     StartLinesCount = 30;
     DistanceBetweenLines = 100.f;
     CurrentXLine = 0.f;
-    NextSpawnTrigger = 5.f;
+    NextSpawnTrigger = 5;
+
+    FirstThreeRoad = 0;
 }
 
 void AMyActorGeneratorMap::BeginPlay()
@@ -38,6 +40,7 @@ void AMyActorGeneratorMap::BeginPlay()
     Player = Cast<AMyPawnPlayer>(GetWorld()->GetFirstPlayerController()->GetPawn());
     Fog = Cast<AMyActorFogKiller>(UGameplayStatics::GetActorOfClass(GetWorld(),
         AMyActorFogKiller::StaticClass()));
+
 
     for (int32 i = 0; i < StartLinesCount; i++)//Spawn first objets
     {
@@ -66,7 +69,7 @@ void AMyActorGeneratorMap::CheckPlayerProgress()
 
     int32 CurrentPlayerLineIndex = FMath::FloorToInt(PlayerX / DistanceBetweenLines);
 
-    if (CurrentPlayerLineIndex >= NextSpawnTrigger)//Spawn line, if player is moveing
+    if (CurrentPlayerLineIndex >= NextSpawnTrigger)//Spawn line, if player is moving
     {
         NextSpawnTrigger += 5;
         for (int32 i = 0; i < 10; i++)
@@ -128,8 +131,14 @@ void AMyActorGeneratorMap::SpawnOnbjects(int32 LineIndex)
     ChargerCounter = 0;
 
     int32 RandomNum = FMath::RandRange(0, 1);//Chose object to spawn
-    if (RandomNum == 0) { SpawnBarrel(TargetLine);}
-    else { SpawnCharger(TargetLine); }
+    if (RandomNum == 0) 
+    { 
+        SpawnBarrel(TargetLine);
+    }
+    else 
+    { 
+        SpawnCharger(TargetLine);
+    }
 }
 
 void AMyActorGeneratorMap::SpawnBarrel(AMyActorRoadLine* TargetLine)//Spawn barrel
@@ -249,34 +258,46 @@ void AMyActorGeneratorMap::SpawnLine()
     UE_LOG(GeneratorMapLog, Display, TEXT("Function SpawnLine called"));
     if (RoadLines.Num() == 0) return;
     int32 RandomIndex = 0;
-        RandomIndex = FMath::RandRange(0, RoadLines.Num() - 1);//Random road
-        switch (RandomIndex)//Update counters
-        {
-        case 0:  SafeCounter++; break;
-        case 1: DangerCounter++; break;
-        case 2: TrainCounter++;  break;
-        }
+    RandomIndex = FMath::RandRange(0, RoadLines.Num() - 1);//Random road
+    if (FirstThreeRoad<3) RandomIndex = 0;
+    switch (RandomIndex)
+    {
+    case 0:  SafeCounter++; break;
+    case 1: DangerCounter++; break;
+    case 2: TrainCounter++;  break;
+    }
 
-        if (DangerCounter >= 4) { RandomIndex = 0; DangerCounter = 0; }//Check limits
-
-        else if (SafeCounter >= 3){ RandomIndex = 1; SafeCounter = 0;}
-
-        else if (TrainCounter >= 3) { RandomIndex = 0; TrainCounter = 0; }
-
+    if (FirstThreeRoad < 3)
+    {
+        RandomIndex = 0;
+        FirstThreeRoad++;
+    }
+    else if (DangerCounter >= 4)// Check limits
+    {
+        RandomIndex = 0; DangerCounter = 0;
+    }
+    else if (SafeCounter >= 3)
+    {
+        RandomIndex = 1; SafeCounter = 0;
+    }
+    else if (TrainCounter >= 3)
+    {
+        RandomIndex = 0; TrainCounter = 0;
+    }
 
     UE_LOG(GeneratorMapLog, Log, TEXT("DangerCounter is %d, SafeCounter is %d,TrainCounter is %d"),
         DangerCounter, SafeCounter, TrainCounter);
 
     TSubclassOf<AMyActorRoadLine> RandomClass = RoadLines[RandomIndex];
     FVector SpawnLocation = GetActorLocation() + FVector(CurrentXLine, 0.f, 0.f);
- 
+
     AMyActorRoadLine* NewLine = GetWorld()->SpawnActor<AMyActorRoadLine>(RandomClass,//Spawn
-        SpawnLocation, FRotator::ZeroRotator);
+    SpawnLocation, FRotator::ZeroRotator);
 
     if (NewLine)
     {
-        UE_LOG(GeneratorMapLog, Log, TEXT("Spawn %s road"),*RandomClass);
-        int32 GlobalLineIndex = FMath::RoundToInt(CurrentXLine / DistanceBetweenLines);
+    UE_LOG(GeneratorMapLog, Log, TEXT("Spawn %s road"), *RandomClass);
+    int32 GlobalLineIndex = FMath::RoundToInt(CurrentXLine / DistanceBetweenLines);
 
         NewLine->InitializeRoadLine(GlobalLineIndex);
 

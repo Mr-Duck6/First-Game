@@ -15,14 +15,8 @@ public:
 	//Components
 	UPROPERTY(VisibleAnywhere)
 		UStaticMeshComponent* LampMesh;
-
-	UPROPERTY(VisibleAnywhere)
-		class USpotLightComponent* LampLight;
-
-
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<AActor> LampBlueprintClass;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		class UPointLightComponent* LightComponent;
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<AActor> LampBlueprintClass;
 };

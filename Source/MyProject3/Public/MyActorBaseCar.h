@@ -5,6 +5,7 @@
 #include "MyActorBaseCar.generated.h"
 
 class UBoxComponent;
+class AMyActorRoadLine;
 
 UCLASS()
 class MYPROJECT3_API AMyActorBaseCar : public AActor
@@ -27,8 +28,6 @@ protected:
 public:
     virtual void Tick(float DeltaTime) override;
 
-    void InitializeCar(FVector Direction, FVector SpawnLocation);
-
     UFUNCTION()
         void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
             UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
@@ -40,13 +39,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car Settings")
         float Speed;
 
-    float CarTargetSpeed;
-    float CarCurrentSpeed;
-    bool bCanMove;
-    float StartDelayTimer;
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Car Settings")
         FVector MoveDirection;
+
     FVector StartLocation;
+
 
 };

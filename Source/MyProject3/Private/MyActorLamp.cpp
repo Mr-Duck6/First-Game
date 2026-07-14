@@ -7,8 +7,6 @@ AMyActorLamp::AMyActorLamp()
 
 	LampMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LampMesh"));
 	RootComponent = LampMesh;
-
-	LampLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("LampLight"));
-	LampLight->SetupAttachment(RootComponent);
 	LightComponent = CreateDefaultSubobject<UPointLightComponent>(TEXT("LightComponent"));
+	LightComponent->SetupAttachment(LampMesh);
 }

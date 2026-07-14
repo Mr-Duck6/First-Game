@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "CarsParametrsDA.h"
 #include "MyActorRoadLine.generated.h"
 
 class AMyActorBaseCar;
@@ -26,8 +27,6 @@ public:
 
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-
-    //Road
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
         UStaticMeshComponent* RoadMesh;
 
@@ -38,19 +37,15 @@ public:
     void InitializeRoadLine(int32 InLineIndex);
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Road Settings")
-        int32 LineIndex = 0;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Road Settings")
-        int32 LineLength = 10;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Road Settings")
-    float StartLocationY;
+        int32 LineIndex;
 
 private:
     UPROPERTY()
         float CellSize;
-
-
+    UPROPERTY()
+        float StartLocationY;
+    UPROPERTY()
+        int32 LineLength;
 
 public:
 
@@ -71,10 +66,14 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Car")
         TArray<TSubclassOf<AMyActorBaseCar>> BluePrintToSpawnCar;
 
-    int32 DriveDistance;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Car")
+        TArray<UCarsParametrsDA*> CarsCases;
+
     FTimerHandle CarTimer;
-    int32 CarTimeToRespawn;
     FVector MainRoadDirection;
+    int32 YSpawn;
+    float StartYCarLocation;
+    float StartCarYLocation;
 
     void SpawnCar();
     void DeleteCars();

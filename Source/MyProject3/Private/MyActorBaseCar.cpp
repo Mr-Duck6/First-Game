@@ -15,13 +15,8 @@ AMyActorBaseCar::AMyActorBaseCar()
 
     BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &AMyActorBaseCar::OnOverlapBegin);
 
-    CarTargetSpeed = 0.f;
-    CarCurrentSpeed = 0.f;
-    bCanMove = false;
-
-    StartDelayTimer = FMath::FRandRange(0.f, 2.0f);
-    Speed = 90.f;
-    MaxDriveDistance =2100;
+    MaxDriveDistance = 1300;
+    MoveDirection = FVector::RightVector;
 
 }
 
@@ -29,54 +24,21 @@ void AMyActorBaseCar::BeginPlay()
 {
     Super::BeginPlay();
     StartLocation = GetActorLocation();
-}
 
-void AMyActorBaseCar::InitializeCar(FVector Direction, FVector SpawnLocation)//Edit car
-{
-    MoveDirection = Direction;
 }
 
 void AMyActorBaseCar::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    if (!bCanMove)//Teleport car
-    {
-        StartDelayTimer -= DeltaTime;
-
-        if (StartDelayTimer <= 0.f)
-        {
-            bCanMove = true;
-        }
-        return;
-    }
-    FVector StartCheck = GetActorLocation();
-    FVector EndCheck = StartCheck + (MoveDirection * 350.f);
-    FHitResult HitResult;
-
     FCollisionQueryParams ObjectParams;
     ObjectParams.AddIgnoredActor(this);
 
-
-    bool bObjectInFront = GetWorld()->LineTraceSingleByChannel(HitResult, StartCheck, 
-        EndCheck, ECC_WorldDynamic, ObjectParams);
-
-    if (bObjectInFront && HitResult.GetActor() && HitResult.GetActor()->IsA(AMyActorBaseCar::StaticClass()))//Stoped
-    {
-        CarCurrentSpeed = FMath::FInterpTo(CarCurrentSpeed, 0.f, DeltaTime, 5.f);
-    }
-    else//Speed up
-    {
-        CarCurrentSpeed = FMath::FInterpTo(CarCurrentSpeed, CarTargetSpeed, DeltaTime, 2.f);
-    }
-
-    FVector NewLocation = GetActorLocation() + (MoveDirection * CarCurrentSpeed * DeltaTime);//Move
+    FVector NewLocation = GetActorLocation() + (MoveDirection * Speed * DeltaTime);//Move
     SetActorLocation(NewLocation, true);
 
-    if (FVector::Dist(StartLocation, NewLocation) >= MaxDriveDistance)//End road
+    if (FVector::Dist(StartLocation, NewLocation) >= MaxDriveDistance)
     {
-        bCanMove = false;
-        StartDelayTimer = FMath::FRandRange(0.5f, 2.0f);
         SetActorLocation(StartLocation, false);
     }
 }
